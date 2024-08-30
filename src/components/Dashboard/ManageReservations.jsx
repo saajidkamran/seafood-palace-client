@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Table,
   TableBody,
@@ -10,7 +11,7 @@ import {
   TextField,
   Typography,
   Paper,
-  Box,
+  Divider,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,82 +19,94 @@ import {
   DialogContentText,
   Snackbar,
   Alert,
-  Divider,
 } from "@mui/material";
 
-// Sample data
-const initialReservations = [
-  {
-    id: 1,
-    customerName: "John Doe",
-    customerEmail: "john@example.com",
-    customerPhone: "123-456-7890",
-    reservationId: "R123",
-    fromDate: "2024-09-01",
-    toDate: "2024-09-07",
-    numberOfGuests: 4,
-    isActive: true,
-  },
-  {
-    id: 2,
-    customerName: "Jane Smith",
-    customerEmail: "jane@example.com",
-    customerPhone: "098-765-4321",
-    reservationId: "R124",
-    fromDate: "2024-09-05",
-    toDate: "2024-09-10",
-    numberOfGuests: 2,
-    isActive: false,
-  },
-  // Add more reservations as needed
-];
-
 const ManageReservations = () => {
-  const [data, setData] = useState(initialReservations);
+  const [data, setData] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [editFields, setEditFields] = useState({}); // Temporary state for edit fields
+
+  // Fetch data from server
   useEffect(() => {
-    //update delet
-  });
-  const handleUpdate = (updatedReservation) => {
-    const updatedData = data.map((reservation) =>
-      reservation.id === updatedReservation.id
-        ? updatedReservation
-        : reservation
-    );
-    setData(updatedData);
-    setSnackbarMessage("Successfully updated");
-    setSnackbarOpen(true);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/reserve");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Handle field change
+  const handleFieldChange = (id, field) => (e) => {
+    const value = e.target.value;
+    setEditFields((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
   };
 
-  const handleFieldChange = (id, field, value) => {
-    const updatedData = data.map((reservation) =>
-      reservation.id === id ? { ...reservation, [field]: value } : reservation
-    );
-    setData(updatedData);
+  // Handle update
+  const handleUpdate = async (id) => {
+    try {
+      const updatedFields = editFields[id];
+      if (updatedFields) {
+        await axios.put(`http://localhost:3000/reserve/${id}`, updatedFields);
+
+        // Update local state
+        const updatedData = data.map((reservation) =>
+          reservation._id === id
+            ? { ...reservation, ...updatedFields }
+            : reservation
+        );
+        setData(updatedData);
+        setSnackbarMessage("Successfully updated");
+        setSnackbarOpen(true);
+      }
+    } catch (error) {
+      console.error("Error updating reservation:", error);
+    }
   };
 
+  // Handle delete
   const handleDelete = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
   };
 
-  const confirmDelete = () => {
-    const updatedData = data.filter(
-      (reservation) => reservation.id !== deleteId
-    );
-    setData(updatedData);
-    setOpenDialog(false);
-    setDeleteId(null);
+  // Confirm delete
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/reserve/${deleteId}`);
+
+      // Update local state
+      const updatedData = data.filter(
+        (reservation) => reservation._id !== deleteId
+      );
+      setData(updatedData);
+      setSnackbarMessage("Successfully deleted");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error deleting reservation:", error);
+    } finally {
+      setOpenDialog(false);
+      setDeleteId(null);
+    }
   };
 
+  // Cancel delete
   const cancelDelete = () => {
     setOpenDialog(false);
     setDeleteId(null);
   };
 
+  // Handle snackbar close
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -122,61 +135,55 @@ const ManageReservations = () => {
           </TableHead>
           <TableBody>
             {data.map((reservation) => (
-              <TableRow key={reservation.id}>
+              <TableRow key={reservation._id}>
                 <TableCell>
                   <TextField
-                    value={reservation.customerName}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        reservation.id,
-                        "customerName",
-                        e.target.value
-                      )
+                    value={
+                      editFields[reservation._id]?.customerName ||
+                      reservation.customerName
                     }
+                    onChange={handleFieldChange(
+                      reservation._id,
+                      "customerName"
+                    )}
                     size="small"
                     fullWidth
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={reservation.customerEmail}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        reservation.id,
-                        "customerEmail",
-                        e.target.value
-                      )
+                    value={
+                      editFields[reservation._id]?.customerEmail ||
+                      reservation.customerEmail
                     }
+                    onChange={handleFieldChange(
+                      reservation._id,
+                      "customerEmail"
+                    )}
                     size="small"
                     fullWidth
                   />
                 </TableCell>
                 <TableCell>
                   <TextField
-                    value={reservation.customerPhone}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        reservation.id,
-                        "customerPhone",
-                        e.target.value
-                      )
+                    value={
+                      editFields[reservation._id]?.phoneNumber ||
+                      reservation.phoneNumber
                     }
+                    onChange={handleFieldChange(reservation._id, "phoneNumber")}
                     size="small"
                     fullWidth
                   />
                 </TableCell>
-                <TableCell>{reservation.reservationId}</TableCell>
+                <TableCell>{reservation._id}</TableCell>
                 <TableCell>
                   <TextField
                     type="date"
-                    value={reservation.fromDate}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        reservation.id,
-                        "fromDate",
-                        e.target.value
-                      )
+                    value={
+                      editFields[reservation._id]?.fromDate?.split("T")[0] ||
+                      reservation.fromDate.split("T")[0]
                     }
+                    onChange={handleFieldChange(reservation._id, "fromDate")}
                     size="small"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
@@ -185,14 +192,11 @@ const ManageReservations = () => {
                 <TableCell>
                   <TextField
                     type="date"
-                    value={reservation.toDate}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        reservation.id,
-                        "toDate",
-                        e.target.value
-                      )
+                    value={
+                      editFields[reservation._id]?.toDate?.split("T")[0] ||
+                      reservation.toDate.split("T")[0]
                     }
+                    onChange={handleFieldChange(reservation._id, "toDate")}
                     size="small"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
@@ -201,14 +205,11 @@ const ManageReservations = () => {
                 <TableCell>
                   <TextField
                     type="number"
-                    value={reservation.numberOfGuests}
-                    onChange={(e) =>
-                      handleFieldChange(
-                        reservation.id,
-                        "numberOfGuests",
-                        e.target.value
-                      )
+                    value={
+                      editFields[reservation._id]?.guestCount ||
+                      reservation.guestCount
                     }
+                    onChange={handleFieldChange(reservation._id, "guestCount")}
                     size="small"
                     fullWidth
                   />
@@ -232,7 +233,7 @@ const ManageReservations = () => {
                       color: "white",
                       "&:hover": { backgroundColor: "darkgray" },
                     }}
-                    onClick={() => handleUpdate(reservation)}
+                    onClick={() => handleUpdate(reservation._id)}
                   >
                     Update
                   </Button>
@@ -240,7 +241,7 @@ const ManageReservations = () => {
                     variant="contained"
                     color="error"
                     sx={{ width: "100%", marginTop: 1 }}
-                    onClick={() => handleDelete(reservation.id)}
+                    onClick={() => handleDelete(reservation._id)}
                   >
                     Delete
                   </Button>
@@ -281,7 +282,6 @@ const ManageReservations = () => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        message={snackbarMessage}
       >
         <Alert
           onClose={handleSnackbarClose}
