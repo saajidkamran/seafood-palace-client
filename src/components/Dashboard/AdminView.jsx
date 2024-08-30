@@ -11,7 +11,7 @@ function AdminView() {
         display: "flex",
         flexDirection: "column",
         // border: "2px solid black",
-        paddingTop: "20px",
+        paddingTop: "50px",
         paddingBottom: "10px",
         justifyContent: "center",
         margin: "0 20px 0 20px",
