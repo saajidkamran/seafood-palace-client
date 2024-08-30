@@ -1,6 +1,7 @@
 import React from "react";
 import AddReservation from "./AddReservation";
 import ManageReservations from "./ManageReservations";
+import SummarySection from "./SummarySection";
 
 function AdminView() {
   return (
@@ -18,6 +19,7 @@ function AdminView() {
     >
       <AddReservation />
       <ManageReservations />
+      <SummarySection />
     </div>
   );
 }
