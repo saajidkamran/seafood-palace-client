@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -6,8 +6,10 @@ import {
   TextField,
   Snackbar,
   Alert,
+  Divider,
 } from "@mui/material";
 import { Formik, Form, Field } from "formik";
+import axios from "axios";
 
 const textFieldStyles = {
   "& .MuiInputBase-input": {
@@ -36,30 +38,55 @@ const textFieldStyles = {
   },
 };
 
-const AddReservationForm = ({ onAdd }) => {
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toISOString().split("T")[0]; // Formats to "YYYY-MM-DD"
+};
+
+const AddReservationForm = () => {
   const [open, setOpen] = useState(false);
-  useEffect(() => {
-    // add reservation api
-  });
 
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleAdd = async (values) => {
+    try {
+      // Make API request to add reservation
+      await axios.post("http://localhost:3000/reserve", values);
+      setOpen(true); // Show the notification on successful addition
+    } catch (error) {
+      console.error("Error adding reservation:", error);
+    }
+  };
+
   return (
-    <>
+    <div style={{ margin: "0 30px 0 30px" }}>
       <Formik
         initialValues={{
+          user_id: "",
           customerName: "",
-          reservationId: "",
-          numberOfGuests: "",
+          guestCount: "",
+          customerEmail: "",
+          phoneNumber: "",
           fromDate: "",
           toDate: "",
         }}
         onSubmit={(values, { resetForm }) => {
-          onAdd(values);
+          // Adjust the payload format
+          const payload = {
+            user_id: values.user_id,
+            customerName: values.customerName,
+            guestCount: parseInt(values.guestCount, 10),
+            customerEmail: values.customerEmail,
+            phoneNumber: values.phoneNumber,
+            fromDate: formatDate(values.fromDate),
+            toDate: formatDate(values.toDate),
+          };
+
+          console.log("Payload:", payload);
+          handleAdd(payload);
           resetForm();
-          setOpen(true); // Show the notification
         }}
       >
         {({ handleSubmit }) => (
@@ -75,6 +102,16 @@ const AddReservationForm = ({ onAdd }) => {
               <Box display="flex" gap={2}>
                 <Box flexBasis="45%">
                   <Field
+                    name="user_id"
+                    as={TextField}
+                    label="User ID"
+                    fullWidth
+                    size="small"
+                    sx={textFieldStyles}
+                  />
+                </Box>
+                <Box flexBasis="45%">
+                  <Field
                     name="customerName"
                     as={TextField}
                     label="Customer Name"
@@ -83,22 +120,35 @@ const AddReservationForm = ({ onAdd }) => {
                     sx={textFieldStyles}
                   />
                 </Box>
+              </Box>
+              <Box display="flex" gap={2}>
                 <Box flexBasis="45%">
                   <Field
-                    name="reservationId"
+                    name="guestCount"
                     as={TextField}
-                    label="Reservation ID"
+                    label="No. of Guests"
                     fullWidth
                     size="small"
+                    type="number"
+                  />
+                </Box>
+                <Box flexBasis="45%">
+                  <Field
+                    name="customerEmail"
+                    as={TextField}
+                    label="Customer Email"
+                    fullWidth
+                    size="small"
+                    type="email"
                   />
                 </Box>
               </Box>
               <Box display="flex" gap={2}>
                 <Box flexBasis="45%">
                   <Field
-                    name="numberOfGuests"
+                    name="phoneNumber"
                     as={TextField}
-                    label="No. of Guests"
+                    label="Phone Number"
                     fullWidth
                     size="small"
                   />
@@ -138,7 +188,9 @@ const AddReservationForm = ({ onAdd }) => {
                     "&:hover": {
                       backgroundColor: "gray",
                     },
-                    width: "100%", // Ensure the button takes full width
+                    width: "100%",
+                    height: "50px",
+                    padding: "15px 0 15px 0", // Ensure the button takes full width
                   }}
                 >
                   Add Reservation
@@ -155,7 +207,8 @@ const AddReservationForm = ({ onAdd }) => {
           Reservation added successfully!
         </Alert>
       </Snackbar>
-    </>
+      <Divider style={{ paddingTop: "15px" }} variant="middle" />
+    </div>
   );
 };
 

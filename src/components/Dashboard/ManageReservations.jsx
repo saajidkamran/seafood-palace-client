@@ -112,9 +112,7 @@ const ManageReservations = () => {
   };
 
   return (
-    <div>
-      <Divider style={{ paddingTop: "20px" }} />
-
+    <div style={{ marginTop: "20px" }}>
       <TableContainer component={Paper}>
         <Typography variant="h6" component="div" sx={{ margin: 2 }}>
           Manage Reservations

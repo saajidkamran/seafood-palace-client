@@ -12,6 +12,8 @@ function AdminView() {
         // border: "2px solid black",
         paddingTop: "20px",
         paddingBottom: "10px",
+        justifyContent: "center",
+        margin: "0 20px 0 20px",
       }}
     >
       <AddReservation />
