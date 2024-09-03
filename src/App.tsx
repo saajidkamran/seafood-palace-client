@@ -1,6 +1,6 @@
 import React from "react";
 import AdminView from "./components/Dashboard/AdminView";
-import ReservationForm from "./components/Reservation/ReservationForm";
+import ReservationForm from "./components/Reservation/ReservationPage";
 
 function App() {
   return (
