@@ -18,6 +18,7 @@ import image_1 from "../../uploads/images/image1.jpg";
 import image_2 from "../../uploads/images/image2.jpg";
 import image_3 from "../../uploads/images/image3.jpg";
 import image_4 from "../../uploads/images/image4.jpg";
+import ReservationForm from "./ReservationForm";
 
 const ReservationPage = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -40,15 +41,28 @@ const ReservationPage = () => {
   };
 
   return (
-    <Box sx={{ padding: "20px" }}>
-      <Typography variant="h4" align="center" gutterBottom>
-        Reserve Your Space Now
-      </Typography>
-      <Typography variant="body1" align="center" gutterBottom>
-        Secure your event hall with just a few clicks for a seamless reservation
-        experience. Enjoy hassle-free planning with instant confirmation and
-        personalized support throughout the process.
-      </Typography>
+    <div style={{ padding: "20px", display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          marginBottom: "50px",
+          width: "50%",
+          alignItems: "center",
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+      >
+        <Typography variant="h4" align="center" gutterBottom>
+          Reserve Your Space Now
+        </Typography>
+        <Typography variant="body1" align="center" gutterBottom>
+          Secure your event hall with just a few clicks for a seamless
+          reservation experience. Enjoy hassle-free planning with instant
+          confirmation and personalized support throughout the process.
+        </Typography>
+      </div>
 
       <Grid container spacing={4} justifyContent="center" alignItems="center">
         <Grid item xs={12} md={6}>
@@ -73,74 +87,8 @@ const ReservationPage = () => {
             </Carousel>
           </Paper>
         </Grid>
-
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} sx={{ padding: "16px", borderRadius: 2 }}>
-            <Box
-              component="form"
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <TextField
-                label="Customer Name"
-                name="customerName"
-                variant="outlined"
-                fullWidth
-                margin="dense"
-              />
-              <TextField
-                label="Number Of Guests"
-                name="numberOfGuests"
-                variant="outlined"
-                fullWidth
-                margin="dense"
-              />
-              <TextField
-                label="Date"
-                name="date"
-                variant="outlined"
-                fullWidth
-                margin="dense"
-                placeholder="dd/mm/yyyy"
-              />
-              <TextField
-                label="Phone No"
-                name="phoneNo"
-                variant="outlined"
-                fullWidth
-                margin="dense"
-              />
-              <TextField
-                label="Email ID"
-                name="emailId"
-                variant="outlined"
-                fullWidth
-                margin="dense"
-              />
-              <TextField
-                label="Your Message"
-                name="message"
-                variant="outlined"
-                fullWidth
-                margin="dense"
-                multiline
-                rows={4}
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="error"
-                sx={{ mt: 2, width: "100%" }}
-              >
-                Reserve Now
-              </Button>
-            </Box>
-          </Paper>
-        </Grid>
+        <ReservationForm />
       </Grid>
-
       <Box sx={{ marginTop: "20px", textAlign: "center" }}>
         <Tabs value={activeTab} onChange={handleTabChange} centered>
           <Tab label="Features" />
@@ -150,7 +98,7 @@ const ReservationPage = () => {
       </Box>
 
       <Box sx={{ marginTop: "20px" }}>{renderContent()}</Box>
-    </Box>
+    </div>
   );
 };
 
